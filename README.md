@@ -16,7 +16,7 @@ Escape/Unescape a unicode notations (`\uNNNN`) for Emacs.
 ### unicode-escape `(obj &option (surrogate t))`
 
 Escape `obj` to unicode notation. (character or string)
-[surrogate pair][surrogate_pair] conversion is enabled.
+[surrogate pair](#surrogate-pair) conversion is enabled.
 
     (unicode-escape "Hello") ;;=> "Hello"
     (unicode-escape ?\u2603) ;;=> "\\u2603"
@@ -26,7 +26,7 @@ Escape `obj` to unicode notation. (character or string)
 ### unicode-escape* `(obj)`
 
 Similar to `unicode-escape`.
-[surrogate pair][surrogate_pair] conversion is disabled. 
+[surrogate pair](#surrogate-pair) conversion is disabled. 
 non-BMP characters convert to `\UNNNNNNNN`)
 
     (unicode-escape* "U+1F363 is 🍣") ;;=> "U+1F363 is \\U0001F363" 
@@ -34,7 +34,7 @@ non-BMP characters convert to `\UNNNNNNNN`)
 ### unicode-unescape `(string &option (surrogate t))`
 
 Unescape unicode `string`.
-[surrogate pair][surrogate_pair] convert to original code point.
+[surrogate pair](#surrogate-pair) convert to original code point.
 
     (unicode-unescape "\\u3053\\u3093\\u306B\\u3061\\u306F") ;;=> "こんにちは"
     (unicode-unescape "\\uD83C\\uDF63") ;;=> "🍣"
@@ -42,7 +42,7 @@ Unescape unicode `string`.
 ### unicode-unescape* `(string)`
 
 Similar to `unicode-unescape`.
-[surrogate pair][surrogate_pair] conversion is disabled.
+[surrogate pair](#surrogate-pair) conversion is disabled.
 
     (unicode-unescape "\\uD83C\\uDF63" nil) ;;=> "\uD83C\uDF63"
 
@@ -62,16 +62,16 @@ Unescape unicode notations from region `start` to `end`.
 
 ## Surrogate pair
 
-[surrogate_pair]:https://en.wikipedia.org/wiki/Surrogate_pair
+https://en.wikipedia.org/wiki/Surrogate_pair
 
 By default, non-BMP characters (U+0000..U+10FFFF) convert a 2-byte sequence
-such as [surrogate pair][surrogate_pair].
+such as surrogate pair.
 
-    ELISP> (unicode-escape "🙈🙉🙊")
-    "\\uD83D\\uDE48\\uD83D\\uDE49\\uD83D\\uDE4A"
+    (unicode-escape "🙈🙉🙊")
+    ;;=> "\\uD83D\\uDE48\\uD83D\\uDE49\\uD83D\\uDE4A"
 
-    ELISP> (unicode-escape "🙈🙉🙊" nil) ; or `unicode-escape*'
-    "\\U0001F648\\U0001F649\\U0001F64A"
+    (unicode-escape "🙈🙉🙊" nil) ; or `unicode-escape*'
+    ;;=> "\\U0001F648\\U0001F649\\U0001F64A"
 
 
 ## License
