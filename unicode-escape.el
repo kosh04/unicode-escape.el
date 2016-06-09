@@ -5,8 +5,8 @@
 ;; Author: KOBAYASHI Shigeru (kosh) <shigeru.kb@gmail.com>
 ;; URL: https://github.com/kosh04/unicode-escape.el
 ;; Original-URL: https://gist.github.com/kosh04/568800
-;; Version: 1.0
-;; Package-Requires: ((emacs "24") (names "0.5"))
+;; Version: 1.1
+;; Package-Requires: ((emacs "24") (names "0.5") (dash "2.12"))
 ;; Keywords: i18n
 ;; Created: 2016/06/09
 ;; License: MIT License
@@ -17,28 +17,33 @@
 
 ;; Escape and unescape unicode notations.  "\uNNNN" <-> "\\uNNNN"
 
+;;; Change Log:
+
+;; 2010-09-08 ver 0.1  prototype
+;; 2016-06-09 ver 1.0  initial release
+;; 2016-06-10 ver 1.1  surrogate pair conversion enabled by default
+
 ;;; Code:
 
 (eval-when-compile
   (require 'names)
   (require 'rx)
   (require 'cl))
-(require 'cl-lib)
+(require 'dash)
 
 ;;;###autoload
 (define-namespace unicode-escape-
 
-(defvar enable-surrogate-pair t
-  "Escape non-BMP characters as surrogate pair.")
-
 (defvar -re-unicode
-  (rx (not ascii))
+  (rx (1+ (not ascii)))
   "Regex matches a non-ascii character.")
 
 (defconst -re-escaped
   (rx (or (1+ "\\u" (= 4 xdigit))
           (1+ "\\U" (= 8 xdigit))))
   "Regex matches 1 (or more) unicode \\uNNNN or \\UNNNNNNNN notation.")
+
+;; Surrogate-pair
 
 (defsubst -unicode-to-pair (char)
   "Translate code point CHAR to surrogate pair [high low]."
@@ -49,19 +54,20 @@
 
 (defsubst -pair-to-unicode (pair)
   "Translate surrogate pair PAIR to original code point."
-  (let ((hi (aref pair 0))
-        (lo (aref pair 1)))
+  (-let [[hi lo] pair]
     (cl-check-type hi (integer #xD800 #xDBFF))
     (cl-check-type lo (integer #xDC00 #xDFFF))
     (+ (ash (logand hi #x03FF) 10)
        (ash (logand lo #x03FF)  0)
        #x10000)))
 
+;; Escape
+
 (defsubst -escape-char (char &optional surrogate)
   (let ((non-BMP (and (<= #x10000 char) (<= char #x10FFFF))))
     (cond ((and non-BMP surrogate)
-           (let ((pair (-unicode-to-pair char)))
-             (format "\\u%04X\\u%04X" (aref pair 0) (aref pair 1))))
+           (-let [[hi lo] (-unicode-to-pair char)]
+             (format "\\u%04X\\u%04X" hi lo)))
           (non-BMP
            (format "\\U%08X" char))
           (t
@@ -70,6 +76,26 @@
 (defsubst -escape (sequence &optional surrogate)
   (cl-labels ((escape (c) (-escape-char c surrogate)))
     (apply #'concat (mapcar #'escape (vconcat sequence)))))
+
+(defun* -escape-object (obj &optional (surrogate t))
+  "Escape unicode characters to \\uNNNN notation in OBJ (character or string).
+If SURROGATE is non-nil, non-BMP characters (U+10000..U+10FFFF)
+convert to surrogate pairs."
+  (cl-check-type obj char-or-string)
+  (if (characterp obj)
+      (-escape-char obj surrogate)
+    (let ((case-fold-search nil))
+      (replace-regexp-in-string -re-unicode
+                                #'(lambda (s)
+                                    (-escape s surrogate))
+                                obj t t))))
+
+(defun -escape-object* (obj)
+  "Escape unicode characters disable surrogate pair in OBJ.
+non-BMP characters is escaped \\UNNNNNNNN."
+  (-escape-object obj nil))
+
+;; Unescape
 
 (defsubst -parse-escaped-string (s)
   "Separate unicode notation string S to character set."
@@ -85,7 +111,7 @@
 
 (defsubst -unescape (notations &optional surrogate)
   ;; e.g. "\\u2603\\uD83C\\uDF63" => "\u2603\U0001F363" (surrogate=t)
-  (concat (cl-reduce
+  (concat (-reduce-from
            #'(lambda (acc char)
                (let ((hi (car (last acc)))
                      (lo char))
@@ -95,20 +121,10 @@
                         (setf (car (last acc)) (-pair-to-unicode (vector hi lo)))
                         acc)
                        (t `(,@acc ,char)))))
-           (-parse-escaped-string notations)
-           :initial-value nil)))
+           nil
+           (-parse-escaped-string notations))))
 
-(defun* -escape-string (string &optional (surrogate unicode-escape-enable-surrogate-pair))
-  "Escape unicode characters to \\uNNNN notation in STRING.
-non-BMP characters (U+10000..U+10FFFF) is escaped \\UNNNNNNNN.
-If SURROGATE is non-nil, non-BMP characters convert to surrogate pairs."
-  (let ((case-fold-search nil))
-    (replace-regexp-in-string -re-unicode
-                              #'(lambda (s)
-                                  (-escape s surrogate))
-                              string t t)))
-
-(defun* -unescape-string (string &optional (surrogate unicode-escape-enable-surrogate-pair))
+(defun* -unescape-string (string &optional (surrogate t))
   "Unescape unicode notations \\uNNNN and \\UNNNNNNNN in STRING.
 If SURROGATE is non-nil, surrogate pairs convert to original code point."
   (let ((case-fold-search nil))
@@ -117,12 +133,19 @@ If SURROGATE is non-nil, surrogate pairs convert to original code point."
                                   (-unescape s surrogate))
                               string t t)))
 
-(defun -escape-region (start end)
+(defun -unescape-string* (string)
+  "Unescape unicode notations disable surrogate pair."
+  (-unescape-string string nil))
+
+;; Command
+
+(defun -escape-region (start end &optional no-surroage)
   "Escape unicode characters from region START to END.
+If NO-SURROAGE is non-nil, surrogate pair conversion is disabled.
 
 See also `unicode-escape'."
-  (interactive "*r\P")
-  (let ((surrogate enable-surrogate-pair)
+  (interactive "*r\nP")
+  (let ((surrogate (not no-surroage))
         (case-fold-search nil))
     (save-excursion
       (save-restriction
@@ -131,12 +154,13 @@ See also `unicode-escape'."
         (while (re-search-forward -re-unicode nil t)
           (replace-match (-escape (match-string 0) surrogate) t t))))))
 
-(defun -unescape-region (start end)
+(defun -unescape-region (start end &optional no-surroage)
   "Unescape unicode notations from region START to END.
+If NO-SURROAGE is non-nil, surrogate pair conversion is disabled.
 
 See also `unicode-unescape'."
-  (interactive "*r\P")
-  (let ((surrogate enable-surrogate-pair)
+  (interactive "*r\nP")
+  (let ((surrogate (not no-surroage))
         (case-fold-search nil))
     (save-excursion
       (save-restriction
@@ -145,10 +169,14 @@ See also `unicode-unescape'."
         (while (re-search-forward -re-escaped nil t)
           (replace-match (-unescape (match-string 0) surrogate) t t))))))
 
-:autoload (defalias 'unicode-escape        #'-escape-string)
-:autoload (defalias 'unicode-escape-region #'-escape-region)
-:autoload (defalias 'unicode-unescape        #'-unescape-string)
-:autoload (defalias 'unicode-unescape-region #'-unescape-region)
+:autoload
+(progn
+  (defalias 'unicode-escape  #'-escape-object)
+  (defalias 'unicode-escape* #'-escape-object*)
+  (defalias 'unicode-unescape  #'-unescape-string)
+  (defalias 'unicode-unescape* #'-unescape-string*)
+  (defalias 'unicode-escape-region   #'-escape-region)
+  (defalias 'unicode-unescape-region #'-unescape-region))
 
 ) ;; end namespace
 

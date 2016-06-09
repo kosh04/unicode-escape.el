@@ -4,7 +4,10 @@ sudo: false
 
 addons:
   apt:
-    packages: emacs24
+    sources:
+      - cassou-emacs
+    packages:
+      - emacs24
 
 before_install:
   - emacs --version
