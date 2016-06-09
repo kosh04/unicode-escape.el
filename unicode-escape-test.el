@@ -27,28 +27,30 @@ Type is (String . String).")
 Type is (Char . Vector[Char Char]).")
 
 (ert-deftest surrogate-pair ()
-  "Test unicode surrogate-pair."
+  "Test unicode surrogate pair."
   (cl-loop for (char . pair) in unicode-escape-test-surrogate-pairs
            do
            (should (equal      (unicode-escape--unicode-to-pair char) pair))
            (should (char-equal (unicode-escape--pair-to-unicode pair) char))))
 
 (ert-deftest unicode-escape ()
-  "Test escape/unescape string."
+  "Test `unicode-escape' and `unicode-unescape'."
   (cl-loop for (raw . escaped) in unicode-escape-test-strings
            do
            (should (string= (unicode-escape raw) escaped))
-           (should (string= (unicode-unescape escaped) raw)))
-  (should (string= (unicode-escape "\U0001F363" nil) "\\U0001F363"))
-  (should (string= (unicode-escape "\U0001F363" t) "\\uD83C\\uDF63"))
-  )
+           (should (string= (unicode-unescape escaped) raw))))
+
+(ert-deftest unicode-escape* ()
+  "Test `unicode-escape*' and `unicode-unescape*'."
+  (should (string= (unicode-escape* "\U0001F363") "\\U0001F363"))
+  (should (string= (unicode-unescape* "\\uD83C\\uDF63") "\uD83C\uDF63")))
 
 (ert-deftest unicode-escape-hello ()
   "Test escape/unescape using built-in HELLO file."
   (let* ((hello-file (expand-file-name "HELLO" data-directory))
          (hello (f-read hello-file 'iso-2022-7bit)))
     (should (string= (unicode-unescape (unicode-escape hello)) hello))
-    (should (string= (unicode-unescape (unicode-escape hello t) t) hello)) ; surrogate=t
+    (should (string= (unicode-unescape* (unicode-escape* hello)) hello)) ; surrogate=t
     ))
 
 (ert-deftest unicode-escape-region ()

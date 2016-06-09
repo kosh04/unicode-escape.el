@@ -13,60 +13,67 @@ Escape/Unescape a unicode notations (`\uNNNN`) for Emacs.
 
 ## Function
 
-### unicode-escape `(string &option surrogate)`
+### unicode-escape `(obj &option (surrogate t))`
 
-Escape `string` to unicode notation.
-
-If `surrogate` is non-nil, non-BMP characters (U+0000..U+10FFFF)
-convert a 2-byte sequence such as [surrogate pair][surrogate_pair].
+Escape `obj` to unicode notation. (character or string)
+[surrogate pair][surrogate_pair] conversion is enabled.
 
     (unicode-escape "Hello") ;;=> "Hello"
+    (unicode-escape ?\u2603) ;;=> "\\u2603"
     (unicode-escape "こんにちは") ;;=> "\\u3053\\u3093\\u306B\\u3061\\u306F"
-    (unicode-escape "U+1F363 is 🍣")     ;;=> "U+1F363 is \\uD83C\\uDF63" (unicode-escape-enable-surrogate-pair=t)
-    (unicode-escape "U+1F363 is 🍣" nil) ;;=> "U+1F363 is \\U0001F363" 
+    (unicode-escape "U+1F363 is 🍣") ;;=> "U+1F363 is \\uD83C\\uDF63"
 
-### unicode-unescape `(string &option surrogate)`
+### unicode-escape* `(obj)`
+
+Similar to `unicode-escape`.
+[surrogate pair][surrogate_pair] conversion is disabled. 
+non-BMP characters convert to `\UNNNNNNNN`)
+
+    (unicode-escape* "U+1F363 is 🍣") ;;=> "U+1F363 is \\U0001F363" 
+
+### unicode-unescape `(string &option (surrogate t))`
 
 Unescape unicode `string`.
-
-If `surrogate` is non-nil, [surrogate pair][surrogate_pair] will be converted to
-original code point.
+[surrogate pair][surrogate_pair] convert to original code point.
 
     (unicode-unescape "\\u3053\\u3093\\u306B\\u3061\\u306F") ;;=> "こんにちは"
-    (unicode-unescape "\\uD83C\\uDF63")     ;;=> "🍣"
+    (unicode-unescape "\\uD83C\\uDF63") ;;=> "🍣"
+
+### unicode-unescape* `(string)`
+
+Similar to `unicode-unescape`.
+[surrogate pair][surrogate_pair] conversion is disabled.
+
     (unicode-unescape "\\uD83C\\uDF63" nil) ;;=> "\uD83C\uDF63"
 
 
 ## Command
 
-### unicode-escape-region `(start end)`
+Note: Prefix argument (C-u) is given, surrogate pair conversion is disabled.
+
+### unicode-escape-region `(start end &optional no-surrogate)`
 
 Escape unicode characters from region `start` to `end`.
 
-### unicode-unescape-region `(start end)`
+### unicode-unescape-region `(start end &optional no-surrogate)`
 
 Unescape unicode notations from region `start` to `end`.
 
 
-## Variable
+## Surrogate pair
 
-### unicode-escape-enable-surrogate-pair
+[surrogate_pair]:https://en.wikipedia.org/wiki/Surrogate_pair
 
-Escape/unescape non-BMP characters as [surrogate pair][surrogate_pair]. (defaut `t`)
+By default, non-BMP characters (U+0000..U+10FFFF) convert a 2-byte sequence
+such as [surrogate pair][surrogate_pair].
 
-This variable affect the unicode-escape functions/commands.
-
-    ELISP> (setq unicode-escape-enable-surrogate-pair t)
     ELISP> (unicode-escape "🙈🙉🙊")
     "\\uD83D\\uDE48\\uD83D\\uDE49\\uD83D\\uDE4A"
 
-    ELISP> (setq unicode-escape-enable-surrogate-pair nil)
-    ELISP> (unicode-escape "🙈🙉🙊")
+    ELISP> (unicode-escape "🙈🙉🙊" nil) ; or `unicode-escape*'
     "\\U0001F648\\U0001F649\\U0001F64A"
 
 
 ## License
 
 MIT License
-
-[surrogate_pair]:https://en.wikipedia.org/wiki/Surrogate_pair
