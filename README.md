@@ -13,7 +13,7 @@ Escape/Unescape a unicode notations (`\uNNNN`) for Emacs.
 
 ## Function
 
-### unicode-escape `(obj &option (surrogate t))`
+### unicode-escape `(obj &optional (surrogate t))`
 
 Escape `obj` to unicode notation. (character or string)
 [surrogate pair](#surrogate-pair) conversion is enabled.
@@ -27,11 +27,11 @@ Escape `obj` to unicode notation. (character or string)
 
 Similar to `unicode-escape`.
 [surrogate pair](#surrogate-pair) conversion is disabled. 
-non-BMP characters convert to `\UNNNNNNNN`)
+non-BMP characters convert to `\UNNNNNNNN`.
 
     (unicode-escape* "U+1F363 is 🍣") ;;=> "U+1F363 is \\U0001F363" 
 
-### unicode-unescape `(string &option (surrogate t))`
+### unicode-unescape `(string &optional (surrogate t))`
 
 Unescape unicode `string`.
 [surrogate pair](#surrogate-pair) convert to original code point.
@@ -64,8 +64,8 @@ Unescape unicode notations from region `start` to `end`.
 
 https://en.wikipedia.org/wiki/Surrogate_pair
 
-By default, non-BMP characters (U+0000..U+10FFFF) convert a 2-byte sequence
-such as surrogate pair.
+By default, non-BMP characters (U+10000..U+10FFFF) are converted to
+16-bit code of pairs.
 
     (unicode-escape "🙈🙉🙊")
     ;;=> "\\uD83D\\uDE48\\uD83D\\uDE49\\uD83D\\uDE4A"

@@ -1,4 +1,4 @@
-;;; unicode-escape.el --- escape/unescape unicode notations -*- lexical-binding: t; -*-
+;;; unicode-escape.el --- Escape/Unescape unicode notations -*- lexical-binding: t; -*-
 
 ;; Copyright (C) 2016 KOBAYASHI Shigeru
 
@@ -7,7 +7,7 @@
 ;; Original-URL: https://gist.github.com/kosh04/568800
 ;; Version: 1.1
 ;; Package-Requires: ((emacs "24") (names "0.5") (dash "2.12"))
-;; Keywords: i18n
+;; Keywords: i18n, unicode
 ;; Created: 2016/06/09
 ;; License: MIT License
 
@@ -15,7 +15,10 @@
 
 ;;; Commentary:
 
-;; Escape and unescape unicode notations.  "\uNNNN" <-> "\\uNNNN"
+;; Escape and unescape unicode notations. "\uNNNN" <-> "\\uNNNN"
+;;
+;; Non-BMP characters are converted to 16-bit code of pairs
+;; called surrogate-pair (optional).
 
 ;;; Change Log:
 
