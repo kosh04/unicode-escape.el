@@ -6,7 +6,7 @@
 ;; URL: https://github.com/kosh04/unicode-escape.el
 ;; Original-URL: https://gist.github.com/kosh04/568800
 ;; Version: 1.1
-;; Package-Requires: ((emacs "24") (names "0.5") (dash "2.12"))
+;; Package-Requires: ((emacs "24") (names "20151201.0") (dash "2.12.1"))
 ;; Keywords: i18n, unicode
 ;; Created: 2016/06/09
 ;; License: MIT License
