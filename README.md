@@ -1,12 +1,19 @@
 unicode-escape.el
 -----------------
 
+[![MELPA](http://melpa.org/packages/unicode-escape-badge.svg)](http://melpa.org/#/unicode-escape)
 [![Build Status](https://travis-ci.org/kosh04/unicode-escape.el.svg?branch=master)](https://travis-ci.org/kosh04/unicode-escape.el)
 
 Escape/Unescape a unicode notations (`\uNNNN`) for Emacs.
 
 
 ## Installation
+
+You can install this package from [MELPA](http://melpa.org/#/getting-started).
+
+`M-x package-install` <kbd>RET</kbd> `unicode-escape` <kbd>RET</kbd>
+
+Then put the following into your setting file (optional):
 
     (require 'unicode-escape)
 
@@ -44,7 +51,7 @@ Unescape unicode `string`.
 Similar to `unicode-unescape`.
 [surrogate pair](#surrogate-pair) conversion is disabled.
 
-    (unicode-unescape "\\uD83C\\uDF63" nil) ;;=> "\uD83C\uDF63"
+    (unicode-unescape* "\\uD83C\\uDF63" nil) ;;=> "\uD83C\uDF63"
 
 
 ## Command
