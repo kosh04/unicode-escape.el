@@ -2,6 +2,7 @@ unicode-escape.el
 -----------------
 
 [![MELPA](http://melpa.org/packages/unicode-escape-badge.svg)](http://melpa.org/#/unicode-escape)
+[![MELPA Stable](http://stable.melpa.org/packages/unicode-escape-badge.svg)](http://stable.melpa.org/#/unicode-escape)
 [![Build Status](https://travis-ci.org/kosh04/unicode-escape.el.svg?branch=master)](https://travis-ci.org/kosh04/unicode-escape.el)
 
 Escape/Unescape a unicode notations (`\uNNNN`) for Emacs.
