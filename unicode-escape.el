@@ -127,7 +127,7 @@ non-BMP characters is escaped \\UNNNNNNNN."
            nil
            (-parse-escaped-string notations))))
 
-(defun* -unescape-string (string &optional (surrogate t))
+(cl-defun -unescape-string (string &optional (surrogate t))
   "Unescape unicode notations \\uNNNN and \\UNNNNNNNN in STRING.
 If SURROGATE is non-nil, surrogate pairs convert to original code point."
   (let ((case-fold-search nil))
