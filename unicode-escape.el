@@ -80,7 +80,7 @@
   (cl-labels ((escape (c) (-escape-char c surrogate)))
     (apply #'concat (mapcar #'escape (vconcat sequence)))))
 
-(defun* -escape-object (obj &optional (surrogate t))
+(cl-defun -escape-object (obj &optional (surrogate t))
   "Escape unicode characters to \\uNNNN notation in OBJ (character or string).
 If SURROGATE is non-nil, non-BMP characters (U+10000..U+10FFFF)
 convert to surrogate pairs."
@@ -127,7 +127,7 @@ non-BMP characters is escaped \\UNNNNNNNN."
            nil
            (-parse-escaped-string notations))))
 
-(defun* -unescape-string (string &optional (surrogate t))
+(cl-defun -unescape-string (string &optional (surrogate t))
   "Unescape unicode notations \\uNNNN and \\UNNNNNNNN in STRING.
 If SURROGATE is non-nil, surrogate pairs convert to original code point."
   (let ((case-fold-search nil))
