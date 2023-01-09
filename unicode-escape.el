@@ -31,7 +31,7 @@
 (eval-when-compile
   (require 'names)
   (require 'rx)
-  (require 'cl))
+  (require 'cl-lib))
 (require 'dash)
 
 ;;;###autoload
