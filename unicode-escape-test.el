@@ -48,7 +48,7 @@ Type is (Char . Vector[Char Char]).")
 (ert-deftest unicode-escape-hello ()
   "Test escape/unescape using built-in HELLO file."
   (let* ((hello-file (expand-file-name "HELLO" data-directory))
-         (hello (f-read hello-file 'iso-2022-7bit)))
+         (hello (f-read hello-file 'utf-8)))
     (should (string= (unicode-unescape (unicode-escape hello)) hello))
     (should (string= (unicode-unescape* (unicode-escape* hello)) hello)) ; surrogate=t
     ))
