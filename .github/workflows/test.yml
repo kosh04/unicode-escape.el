@@ -4,7 +4,7 @@ on:
   pull_request:
   push:
     paths-ignore:
-      - '**.md''
+      - '**.md'
 
 jobs:
   test:
@@ -17,7 +17,7 @@ jobs:
           - 28.2
           - 29.4
           - 30.1
-    runs-on ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
     steps:
     - uses: actions/checkout@v4
     - uses: purcell/setup-emacs@master
@@ -25,10 +25,10 @@ jobs:
         version ${{ matrix.emacs-version }}
     # https://github.com/cask/cask?tab=readme-ov-file#typical-ci-usage
     - uses: actions/cache@v2
-        id: cache-cask-packages
-        with:
-          path: .cask
-          key: cache-cask-packages-000
+      id: cache-cask-packages
+      with:
+        path: .cask
+        key: cache-cask-packages-000
     - uses: actions/cache@v2
       id: cache-cask-executable
       with:
