@@ -24,12 +24,12 @@ jobs:
       with:
         version ${{ matrix.emacs-version }}
     # https://github.com/cask/cask?tab=readme-ov-file#typical-ci-usage
-    - uses: actions/cache@v2
+    - uses: actions/cache@v4
       id: cache-cask-packages
       with:
         path: .cask
         key: cache-cask-packages-000
-    - uses: actions/cache@v2
+    - uses: actions/cache@v4
       id: cache-cask-executable
       with:
         path: ~/.cask
