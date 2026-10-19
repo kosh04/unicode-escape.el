@@ -64,7 +64,7 @@
 ;; Escape
 
 (defsubst unicode-escape--escape-char (char &optional surrogate)
-  (let ((non-BMP (and (<= #x10000 char) (<= char #x10FFFF))))
+  (let ((non-BMP (<= #x10000 char #x10FFFF)))
     (cond ((and non-BMP surrogate)
            (-let [[hi lo] (unicode-escape--unicode-to-pair char)]
              (format "\\u%04X\\u%04X" hi lo)))
@@ -116,8 +116,8 @@ non-BMP characters is escaped \\UNNNNNNNN."
                (let ((hi (car (last acc)))
                      (lo char))
                  (cond ((and hi surrogate
-                             (<= #xD800 hi) (<= hi #xDBFF)
-                             (<= #xDC00 lo) (<= lo #xDFFF))
+                             (<= #xD800 hi #xDBFF)
+                             (<= #xDC00 lo #xDFFF))
                         (setf (car (last acc)) (unicode-escape--pair-to-unicode (vector hi lo)))
                         acc)
                        (t `(,@acc ,char)))))
