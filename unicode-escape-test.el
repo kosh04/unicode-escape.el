@@ -1,4 +1,4 @@
-;;; unicode-escape-test.el
+;;; unicode-escape-test.el  -*- lexical-binding: t -*-
 
 (require 'ert)
 (require 'f)
@@ -72,4 +72,7 @@ Type is (Char . Vector[Char Char]).")
 (unless noninteractive
   (ert t))
 
+;; Local Variables:
+;; no-byte-compile: t
+;; End:
 ;;; unicode-escape-test.el ends here.
