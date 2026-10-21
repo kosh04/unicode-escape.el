@@ -2,7 +2,6 @@ EMACS ?= emacs
 EMACSFLAGS ?= -L .
 
 CASK ?= cask
-#CASK := EMACS=$(EMACS) $(CASK)
 
 PACKAGE_DIR := $(shell $(CASK) package-directory)
 
@@ -15,3 +14,6 @@ COMPILE.el = $(CASK) exec $(EMACS_BATCH) -f batch-byte-compile
 $(PACKAGE_DIR): Cask
 	$(CASK) install
 	touch $@
+
+.PHONY: cask
+cask: $(PACKAGE_DIR)
