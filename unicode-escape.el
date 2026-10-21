@@ -5,8 +5,8 @@
 ;; Author: KOBAYASHI Shigeru (kosh) <shigeru.kb@gmail.com>
 ;; URL: https://github.com/kosh04/unicode-escape.el
 ;; Original-URL: https://gist.github.com/kosh04/568800
-;; Version: 1.2-git
-;; Package-Requires: ((emacs "28.1") (dash "2.20.0"))
+;; Version: 1.2
+;; Package-Requires: ((emacs "28.1"))
 ;; Keywords: i18n, unicode
 ;; Created: 2016/06/09
 ;; License: MIT License
@@ -25,7 +25,7 @@
 ;; 2010-09-08 ver 0.1  prototype
 ;; 2016-06-09 ver 1.0  initial release
 ;; 2016-06-10 ver 1.1  surrogate pair conversion enabled by default
-;; 2026-10-20 ver 1.2  be free from package names, and dash.el
+;; 2026-10-22 ver 1.2  be free from package names, and dash.el
 
 ;;; Code:
 
