@@ -25,23 +25,23 @@
 ;; 2010-09-08 ver 0.1  prototype
 ;; 2016-06-09 ver 1.0  initial release
 ;; 2016-06-10 ver 1.1  surrogate pair conversion enabled by default
-;; 2026-10-20 ver 1.2
+;; 2026-10-20 ver 1.2  be free from package names, and dash.el
 
 ;;; Code:
 
 (eval-when-compile
   (require 'rx)
   (require 'cl-lib))
-(require 'dash)
+(require 'seq)
 
-(defvar unicode-escape--re-unicode
+(defconst unicode-escape--re-unicode
   (rx (1+ (not ascii)))
-  "Regex matches a non-ascii character.")
+  "Regex matches non-ascii characters.")
 
 (defconst unicode-escape--re-escaped
   (rx (or (1+ "\\u" (= 4 xdigit))
           (1+ "\\U" (= 8 xdigit))))
-  "Regex matches 1 (or more) unicode \\uNNNN or \\UNNNNNNNN notation.")
+  "Regex matches unicode notations (\\uNNNN or \\UNNNNNNNN).")
 
 ;; Surrogate-pair
 
@@ -54,7 +54,7 @@
 
 (defsubst unicode-escape--pair-to-unicode (pair)
   "Translate surrogate pair PAIR to original code point."
-  (-let [[hi lo] pair]
+  (pcase-let ((`[,hi ,lo] pair))
     (cl-check-type hi (integer #xD800 #xDBFF))
     (cl-check-type lo (integer #xDC00 #xDFFF))
     (+ (ash (logand hi #x03FF) 10)
@@ -66,7 +66,7 @@
 (defsubst unicode-escape--escape-char (char &optional surrogate)
   (let ((non-BMP (<= #x10000 char #x10FFFF)))
     (cond ((and non-BMP surrogate)
-           (-let [[hi lo] (unicode-escape--unicode-to-pair char)]
+           (pcase-let ((`[,hi ,lo] (unicode-escape--unicode-to-pair char)))
              (format "\\u%04X\\u%04X" hi lo)))
           (non-BMP
            (format "\\U%08X" char))
@@ -74,8 +74,9 @@
            (format "\\u%04X" char)))))
 
 (defsubst unicode-escape--escape (sequence &optional surrogate)
-  (cl-labels ((escape (c) (unicode-escape--escape-char c surrogate)))
-    (apply #'concat (mapcar #'escape (vconcat sequence)))))
+  (mapconcat #'(lambda (c)
+		 (unicode-escape--escape-char c surrogate))
+	     sequence ""))
 
 (cl-defun unicode-escape--escape-object (obj &optional (surrogate t))
   "Escape unicode characters to \\uNNNN notation in OBJ (character or string).
@@ -111,7 +112,7 @@ non-BMP characters is escaped \\UNNNNNNNN."
 
 (defsubst unicode-escape--unescape (notations &optional surrogate)
   ;; e.g. "\\u2603\\uD83C\\uDF63" => "\u2603\U0001F363" (surrogate=t)
-  (concat (-reduce-from
+  (concat (seq-reduce
            #'(lambda (acc char)
                (let ((hi (car (last acc)))
                      (lo char))
@@ -121,8 +122,8 @@ non-BMP characters is escaped \\UNNNNNNNN."
                         (setf (car (last acc)) (unicode-escape--pair-to-unicode (vector hi lo)))
                         acc)
                        (t `(,@acc ,char)))))
-           nil
-           (unicode-escape--parse-escaped-string notations))))
+           (unicode-escape--parse-escaped-string notations)
+           nil)))
 
 (cl-defun unicode-escape--unescape-string (string &optional (surrogate t))
   "Unescape unicode notations \\uNNNN and \\UNNNNNNNN in STRING.
